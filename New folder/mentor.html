@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tower of Hanoi - 5 Disks</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+            flex-direction: column;
+        }
+        #game {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            width: 80%;
+            max-width: 800px;
+            margin: auto;
+        }
+        .tower {
+            width: 200px;
+            height: 400px; /* Increased height to accommodate 5 disks */
+            background-color: #ddd;
+            position: relative;
+            border: 2px solid #999;
+        }
+        .tower::after {
+            content: "";
+            width: 10px;
+            height: 100%;
+            background-color: #333;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .disk {
+            height: 30px;
+            background-color: #007bff;
+            border-radius: 5px;
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: pointer;
+        }
+        .disk[data-size="1"] {
+            width: 60px;
+            background-color: #ff5555;
+        }
+        .disk[data-size="2"] {
+            width: 100px;
+            background-color: #ffa500;
+        }
+        .disk[data-size="3"] {
+            width: 140px;
+            background-color: #00cc00;
+        }
+        .disk[data-size="4"] {
+            width: 180px;
+            background-color: #007bff;
+        }
+        .disk[data-size="5"] {
+            width: 220px;
+            background-color: #6a0dad;
+        }
+        #message {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game">
+    <div class="tower" data-tower="1"></div>
+    <div class="tower" data-tower="2"></div>
+    <div class="tower" data-tower="3"></div>
+</div>
+<div id="message">Move the disks to solve the puzzle!</div>
+
+<script>
+    let selectedDisk = null;
+    const towers = document.querySelectorAll('.tower');
+    const message = document.getElementById('message');
+
+    // Initialize 5 disks in the first tower
+    const tower1 = towers[0];
+    tower1.innerHTML = `
+        <div class="disk" data-size="5" style="bottom: 0;"></div>
+        <div class="disk" data-size="4" style="bottom: 30px;"></div>
+        <div class="disk" data-size="3" style="bottom: 60px;"></div>
+        <div class="disk" data-size="2" style="bottom: 90px;"></div>
+        <div class="disk" data-size="1" style="bottom: 120px;"></div>
+    `;
+
+    // Tower click handler
+    towers.forEach(tower => {
+        tower.addEventListener('click', () => {
+            const disks = tower.querySelectorAll('.disk');
+            const topDisk = disks.length > 0 ? disks[0] : null; // Get top disk
+
+            if (selectedDisk) {
+                const selectedSize = parseInt(selectedDisk.dataset.size);
+
+                if (!topDisk || selectedSize < parseInt(topDisk.dataset.size)) {
+                    // Valid move: move the selected disk to the tower
+                    tower.appendChild(selectedDisk);
+                    updateDiskPositions(tower); // Recalculate disk positions
+                    selectedDisk = null;
+                    message.textContent = "Disk moved!";
+                    checkWin();
+                } else {
+                    message.textContent = "Invalid move. Can't place larger disk on smaller one!";
+                }
+            } else if (topDisk) {
+                // Select the top disk of the clicked tower
+                selectedDisk = topDisk;
+                message.textContent = "Disk selected. Choose a tower to move it.";
+            }
+        });
+    });
+
+    // Update disk positions in each tower so they stack one above the other
+    function updateDiskPositions(tower) {
+        const disks = tower.querySelectorAll('.disk');
+        for (let i = 0; i < disks.length; i++) {
+            disks[i].style.bottom = (i * 30) + 'px'; // Set the bottom position for stacking
+        }
+    }
+
+    // Check if the user has won the game
+    function checkWin() {
+        const tower3 = towers[2];
+        if (tower3.childElementCount === 5) {
+            message.textContent = "Congratulations! You solved the puzzle!";
+        }
+    }
+</script>
+
+</body>
+</html>
